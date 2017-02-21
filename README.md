@@ -28,6 +28,7 @@ Move a file
 
 ```
 $ wad mv path/to/file.txt path/to/new/location
+```
 
 Current progress
 
