@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type FileManager struct {
@@ -40,19 +41,35 @@ func (f *FileManager) Track(path string, date string) (int, error) {
 	return words, nil
 }
 
-func (f *FileManager) GetFiles() [][]string {
-	var files [][]string
+func (f *FileManager) GetFiles(current bool, search ...string) [][]string {
+	sort.Strings(search)
 
-	for file, checkins := range f.Files {
+	var result [][]string
+
+	var files []string
+	for file := range f.Files {
+		files = append(files, file)
+	}
+	sort.Strings(files)
+
+	for _, file := range files {
 		var dates []string
 
-		for date := range checkins {
-			dates = append(dates, date)
+		for date := range f.Files[file] {
+			today := time.Now().Local().Format("2006-01-02")
+			if current || date != today {
+				dates = append(dates, date)
+			}
 		}
 		sort.Strings(dates)
 		lastDate := dates[len(dates)-1]
 
-		files = append(files, []string{file, strconv.Itoa(checkins[lastDate]), lastDate})
+		if len(search) == 0 {
+			result = append(result, []string{file, strconv.Itoa(f.Files[file][lastDate]), lastDate})
+		} else if i := sort.SearchStrings(search, file); i < len(search) && search[i] == file {
+			result = append(result, []string{file, strconv.Itoa(f.Files[file][lastDate]), lastDate})
+		}
 	}
-	return files
+
+	return result
 }

@@ -1,8 +1,10 @@
 package filemanager_test
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -36,11 +38,48 @@ var _ = Describe("FileManager", func() {
 			file.Write(fileContent)
 
 			fileManager := NewFileManager(file.Name())
-			files := fileManager.GetFiles()
+			files := fileManager.GetFiles(true)
 
 			expectedFiles := [][]string{
 				[]string{"/file1.txt", "500", "2017-02-19"},
 				[]string{"/file2.txt", "100", "2017-02-18"},
+			}
+
+			Expect(len(files)).To(Equal(2))
+			Expect(files).To(Equal(expectedFiles))
+		})
+
+		Context("When the current state is false", func() {
+			It("Returns the previous tracked date instead", func() {
+
+				today := time.Now().Local().Format("2006-01-02")
+				file, _ = ioutil.TempFile("", "wad")
+				fileContent = []byte(fmt.Sprintf(`{"/file1.txt":{"2017-02-18":458,"%v":500}}`, today))
+				file.Write(fileContent)
+
+				fileManager := NewFileManager(file.Name())
+				files := fileManager.GetFiles(false)
+
+				expectedFiles := [][]string{
+					[]string{"/file1.txt", "458", "2017-02-18"},
+				}
+
+				Expect(len(files)).To(Equal(1))
+				Expect(files).To(Equal(expectedFiles))
+			})
+		})
+
+		It("Returns only the requested files with their word count from the last day they were tracked", func() {
+			file, _ = ioutil.TempFile("", "wad")
+			fileContent = []byte(`{"/file1.txt":{"2017-02-18":458,"2017-02-19":500},"/file2.txt":{"2017-02-18":100},"/file3.txt":{"2017-02-19":150}}`)
+			file.Write(fileContent)
+
+			fileManager := NewFileManager(file.Name())
+			files := fileManager.GetFiles(true, "/file3.txt", "/file1.txt")
+
+			expectedFiles := [][]string{
+				[]string{"/file1.txt", "500", "2017-02-19"},
+				[]string{"/file3.txt", "150", "2017-02-19"},
 			}
 
 			Expect(len(files)).To(Equal(2))

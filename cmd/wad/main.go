@@ -57,7 +57,7 @@ func main() {
 				filesFile := filepath.Join(config.WadDir(), "files.json")
 				fileManager := fm.NewFileManager(filesFile)
 
-				data := fileManager.GetFiles()
+				data := fileManager.GetFiles(true)
 
 				table := tablewriter.NewWriter(os.Stdout)
 				table.SetHeader([]string{"File", "Words", "Last tracked on"})
@@ -90,7 +90,7 @@ func main() {
 
 				progressFile := filepath.Join(config.WadDir(), "progress.json")
 				progressTracker, _ := pt.NewProgressTracker(progressFile)
-				progressTracker.TrackFile(current_time.Format("2006-01-02"), file, words)
+				progressTracker.TrackFile(fileManager, current_time.Format("2006-01-02"), file, words)
 
 				jsonContent, _ = json.Marshal(progressTracker.Dates)
 				ioutil.WriteFile(progressFile, jsonContent, 0644)
