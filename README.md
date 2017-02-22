@@ -4,6 +4,10 @@ Words a Day is a CLI tool to help you write.
 
 ## Installation
 
+```
+go get -u github.com/mauromorales/wad/cmd/wad
+```
+
 ## Usage
 
 Initialize wad. Creates the `~/.wad/progress.json` file and folder if they don't exist and sets the goal to 500 words.
