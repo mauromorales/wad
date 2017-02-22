@@ -29,6 +29,25 @@ var _ = Describe("FileManager", func() {
 		})
 	})
 
+	Describe("GetFiles", func() {
+		It("Returns a list of files with their word count from the last day they were tracked", func() {
+			file, _ = ioutil.TempFile("", "wad")
+			fileContent = []byte(`{"/file1.txt":{"2017-02-18":458,"2017-02-19":500},"/file2.txt":{"2017-02-18":100}}`)
+			file.Write(fileContent)
+
+			fileManager := NewFileManager(file.Name())
+			files := fileManager.GetFiles()
+
+			expectedFiles := [][]string{
+				[]string{"/file1.txt", "500", "2017-02-19"},
+				[]string{"/file2.txt", "100", "2017-02-18"},
+			}
+
+			Expect(len(files)).To(Equal(2))
+			Expect(files).To(Equal(expectedFiles))
+		})
+	})
+
 	Describe("Track", func() {
 		var (
 			expectedFileStatus map[string]int

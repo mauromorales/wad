@@ -50,6 +50,27 @@ func main() {
 			},
 		},
 		{
+			Name:    "files",
+			Aliases: []string{"f"},
+			Usage:   "track a given file",
+			Action: func(c *cli.Context) error {
+				filesFile := filepath.Join(config.WadDir(), "files.json")
+				fileManager := fm.NewFileManager(filesFile)
+
+				data := fileManager.GetFiles()
+
+				table := tablewriter.NewWriter(os.Stdout)
+				table.SetHeader([]string{"File", "Words", "Last tracked on"})
+
+				for _, v := range data {
+					table.Append(v)
+				}
+				table.Render()
+
+				return nil
+			},
+		},
+		{
 			Name:    "track",
 			Aliases: []string{"t"},
 			Usage:   "track a given file",
