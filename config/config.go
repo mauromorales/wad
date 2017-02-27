@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 )
 
 type Config struct {
@@ -22,9 +23,14 @@ func New(configDir string, goal int) Config {
 		os.MkdirAll(dir, 0700)
 		cfg.Dir = filepath.Join(dir, ".wad")
 	} else {
-		dir, _ := filepath.Abs(configDir)
-		os.MkdirAll(dir, 0700)
-		cfg.Dir = dir
+		if configDir[:2] == "~/" {
+			usr, _ := user.Current()
+			dir := usr.HomeDir
+			configDir = strings.Replace(configDir, "~/", dir+"/", 1)
+		}
+		path, _ := filepath.Abs(configDir)
+		os.MkdirAll(path, 0700)
+		cfg.Dir = path
 	}
 
 	cfg.Goal = goal
