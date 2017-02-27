@@ -30,6 +30,10 @@ func NewProgressTracker(filePath string) (progressTracker, error) {
 }
 
 func (p *progressTracker) TrackFile(fm filemanager.FileManager, date string, file string, words int, goal int) {
+	if len(p.Dates) == 0 {
+		p.Dates = make(map[string]Date)
+	}
+
 	if _, ok := p.Dates[date]; ok {
 		d := p.Dates[date]
 		d.Goal = goal

@@ -30,13 +30,14 @@ func (f *FileManager) Track(path string, date string) (int, error) {
 
 	content := strings.Fields(string(bytes))
 	words := len(content)
-
-	if _, ok := f.Files[path]; ok {
-		f.Files[path][date] = words
-	} else {
-		f.Files[path] = make(map[string]int)
-		f.Files[path][date] = words
+	if len(f.Files) == 0 {
+		f.Files = make(map[string]map[string]int)
 	}
+
+	if _, ok := f.Files[path]; !ok {
+		f.Files[path] = make(map[string]int)
+	}
+	f.Files[path][date] = words
 
 	return words, nil
 }
