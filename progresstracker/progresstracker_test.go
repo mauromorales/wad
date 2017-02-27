@@ -44,8 +44,9 @@ var _ = Describe("ProgressTracker", func() {
 
 			pt, _ := NewProgressTracker(file.Name())
 
-			pt.TrackFile(fm, "2017-02-18", "/path/to/file.txt", 458)
+			pt.TrackFile(fm, "2017-02-18", "/path/to/file.txt", 458, 500)
 			Expect(len(pt.Dates)).To(Equal(1))
+			Expect(pt.Dates["2017-02-18"].Files["/path/to/file.txt"]).To(Equal(458))
 		})
 
 		It("Updates an entry in the same day", func() {
@@ -61,7 +62,7 @@ var _ = Describe("ProgressTracker", func() {
 
 			pt, _ := NewProgressTracker(file.Name())
 
-			pt.TrackFile(fm, "2017-02-18", "/path/to/file.txt", 600)
+			pt.TrackFile(fm, "2017-02-18", "/path/to/file.txt", 600, 500)
 			Expect(len(pt.Dates)).To(Equal(1))
 			Expect(pt.Dates["2017-02-18"].Files["/path/to/file.txt"]).To(Equal(600))
 		})
@@ -79,7 +80,7 @@ var _ = Describe("ProgressTracker", func() {
 
 			pt, _ := NewProgressTracker(file.Name())
 
-			pt.TrackFile(fm, "2017-02-19", "/file.txt", 700)
+			pt.TrackFile(fm, "2017-02-19", "/file.txt", 700, 500)
 			Expect(len(pt.Dates)).To(Equal(2))
 			Expect(pt.Dates["2017-02-19"].Files["/file.txt"]).To(Equal(242))
 		})

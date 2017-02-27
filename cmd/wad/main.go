@@ -11,30 +11,40 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli"
 
-	config "github.com/mauromorales/wad/config"
+	"github.com/mauromorales/wad/config"
 	fm "github.com/mauromorales/wad/filemanager"
 	pt "github.com/mauromorales/wad/progresstracker"
 )
 
 func main() {
+	var cfg config.Config
 	app := cli.NewApp()
 	app.Name = "wad"
 	app.Usage = "A CLI tool to help you write"
 	app.Version = "0.1.0"
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "config-dir",
+			Usage: "path to config directory",
+		},
+	}
+	app.Before = func(c *cli.Context) error {
+		cfg = config.New(c.String("config-dir"), 500)
+		return nil
+	}
 
 	app.Commands = []cli.Command{
 		{
 			Name:  "init",
 			Usage: "initializes WAD",
 			Action: func(c *cli.Context) error {
-				os.MkdirAll(config.WadDir(), 0700)
 
-				configFile := filepath.Join(config.WadDir(), "config.json")
-				filesFile := filepath.Join(config.WadDir(), "files.json")
-				progressFile := filepath.Join(config.WadDir(), "progress.json")
+				configFile := filepath.Join(cfg.Dir, "config.json")
+				filesFile := filepath.Join(cfg.Dir, "files.json")
+				progressFile := filepath.Join(cfg.Dir, "progress.json")
 
 				if _, err := os.Stat(configFile); err == nil {
-					return cli.NewExitError("WAD has already been initialized in the given directory.", 1)
+					return cli.NewExitError("WAD has already been initialized under `"+cfg.Dir+"'", 1)
 				} else {
 					config := map[string]int{"goal": 500}
 
@@ -54,7 +64,7 @@ func main() {
 			Aliases: []string{"f"},
 			Usage:   "track a given file",
 			Action: func(c *cli.Context) error {
-				filesFile := filepath.Join(config.WadDir(), "files.json")
+				filesFile := filepath.Join(cfg.Dir, "files.json")
 				fileManager := fm.NewFileManager(filesFile)
 
 				data := fileManager.GetFiles(true)
@@ -75,7 +85,7 @@ func main() {
 			Aliases: []string{"t"},
 			Usage:   "track a given file",
 			Action: func(c *cli.Context) error {
-				filesFile := filepath.Join(config.WadDir(), "files.json")
+				filesFile := filepath.Join(cfg.Dir, "files.json")
 				fileManager := fm.NewFileManager(filesFile)
 
 				current_time := time.Now().Local()
@@ -88,9 +98,9 @@ func main() {
 				jsonContent, _ := json.Marshal(fileManager.Files)
 				ioutil.WriteFile(filesFile, jsonContent, 0644)
 
-				progressFile := filepath.Join(config.WadDir(), "progress.json")
+				progressFile := filepath.Join(cfg.Dir, "progress.json")
 				progressTracker, _ := pt.NewProgressTracker(progressFile)
-				progressTracker.TrackFile(fileManager, current_time.Format("2006-01-02"), file, words)
+				progressTracker.TrackFile(fileManager, current_time.Format("2006-01-02"), file, words, cfg.Goal)
 
 				jsonContent, _ = json.Marshal(progressTracker.Dates)
 				ioutil.WriteFile(progressFile, jsonContent, 0644)
@@ -109,7 +119,7 @@ func main() {
 			},
 			Action: func(c *cli.Context) error {
 
-				progressFile := filepath.Join(config.WadDir(), "progress.json")
+				progressFile := filepath.Join(cfg.Dir, "progress.json")
 				progressTracker, _ := pt.NewProgressTracker(progressFile)
 				data := [][]string{}
 				lastGoal := -1

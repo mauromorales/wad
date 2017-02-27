@@ -51,18 +51,24 @@ func (f *FileManager) GetFiles(current bool, search ...string) [][]string {
 		files = append(files, file)
 	}
 	sort.Strings(files)
+	today := time.Now().Local().Format("2006-01-02")
+	var lastDate string
 
 	for _, file := range files {
 		var dates []string
 
 		for date := range f.Files[file] {
-			today := time.Now().Local().Format("2006-01-02")
 			if current || date != today {
 				dates = append(dates, date)
 			}
 		}
 		sort.Strings(dates)
-		lastDate := dates[len(dates)-1]
+
+		if len(dates) > 0 {
+			lastDate = dates[len(dates)-1]
+		} else {
+			lastDate = today
+		}
 
 		if len(search) == 0 {
 			result = append(result, []string{file, strconv.Itoa(f.Files[file][lastDate]), lastDate})
