@@ -1,6 +1,6 @@
 # WAD
 
-Words a Day is a CLI tool to help you write.
+Words a Day is a CLI tool to help you write. If you use Vim make sure to check [vim-wad](https://github.com/mauromorales/vim-wad) plugin.
 
 ## Installation
 
@@ -45,3 +45,22 @@ $ wad progress
 | 2017-02-03 | 600   | 500    | +      |
 | 2017-02-04 | 750   | 750    | =      |
 ```
+
+## Contributing
+
+You need to have ginkgo and gomega installed in order to run the tests
+
+```
+$ go get github.com/onsi/ginkgo/ginkgo
+$ go get github.com/onsi/gomega
+```
+
+Then just run the following command at the root directory to run all tests
+
+```
+$ ginkgo -r
+```
+
+## License
+
+WAD is released under the [MIT License](./LICENSE)
